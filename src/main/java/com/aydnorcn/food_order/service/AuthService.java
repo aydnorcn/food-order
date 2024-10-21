@@ -64,14 +64,11 @@ public class AuthService {
     }
 
     public User getCurrentAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentPrincipalEmail = authentication.getName();
-
+        String currentPrincipalEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(currentPrincipalEmail).orElseThrow(() -> new ResourceNotFoundException("User not found!"));
     }
-    public boolean isCurrentAuthenticatedUserAdmin() {
-        User currentUser = getCurrentAuthenticatedUser();
 
-        return currentUser.getRoles().stream().map(Role::getName).anyMatch(x -> x.equals("ROLE_ADMIN"));
+    public boolean isCurrentAuthenticatedUserAdmin() {
+        return getCurrentAuthenticatedUser().getRoles().stream().map(Role::getName).anyMatch(x -> x.equals("ROLE_ADMIN"));
     }
 }

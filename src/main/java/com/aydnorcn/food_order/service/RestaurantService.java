@@ -81,12 +81,11 @@ public class RestaurantService {
         return restaurantRepository.save(restaurant);
     }
 
-    public String deleteRestaurantById(String restaurantId) {
+    public void deleteRestaurantById(String restaurantId) {
         Restaurant restaurant = getRestaurantById(restaurantId);
 
         restaurantValidationService.validateRestaurantOwnership(restaurant, authService.getCurrentAuthenticatedUser());
 
         restaurantRepository.delete(restaurant);
-        return "Restaurant deleted successfully!";
     }
 }
