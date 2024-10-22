@@ -71,4 +71,8 @@ public class AuthService {
     public boolean isCurrentAuthenticatedUserAdmin() {
         return getCurrentAuthenticatedUser().getRoles().stream().map(Role::getName).anyMatch(x -> x.equals("ROLE_ADMIN"));
     }
+
+    public boolean isCurrentAuthenticatedUserStaff(){
+        return getCurrentAuthenticatedUser().getRoles().stream().map(Role::getName).anyMatch(x -> x.equals("ROLE_STAFF"));
+    }
 }

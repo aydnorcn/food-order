@@ -6,6 +6,7 @@ import com.aydnorcn.food_order.exception.AlreadyExistsException;
 import com.aydnorcn.food_order.exception.NoAuthorityException;
 import com.aydnorcn.food_order.exception.ResourceNotFoundException;
 import com.aydnorcn.food_order.repository.RoleRepository;
+import com.aydnorcn.food_order.service.validation.RoleValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -19,11 +20,13 @@ public class RoleService {
 
     private RoleRepository roleRepository;
     private AuthService authService;
+    private RoleValidationService roleValidationService;
 
     @Autowired
-    public RoleService(RoleRepository roleRepository, @Lazy AuthService authService) {
+    public RoleService(RoleRepository roleRepository, @Lazy AuthService authService, RoleValidationService roleValidationService) {
         this.roleRepository = roleRepository;
         this.authService = authService;
+        this.roleValidationService = roleValidationService;
     }
 
     public Role getRoleById(Long id) {
@@ -34,13 +37,14 @@ public class RoleService {
         return roleRepository.findAll();
     }
 
-    public Role createRole(CreateRoleRequestDto dto) {
-        if (roleRepository.existsByName("ROLE_" + dto.getName().toUpperCase(Locale.ENGLISH))) {
-            throw new AlreadyExistsException("Role already exists!");
-        }
+    public Role getRoleByName(String name) {
+        String roleName = "ROLE_" + name.toUpperCase(Locale.ENGLISH);
+        return roleRepository.findByName(roleName).orElseThrow(() -> new ResourceNotFoundException("Role not found!"));
+    }
 
-        if (!authService.isCurrentAuthenticatedUserAdmin())
-            throw new NoAuthorityException("You don't have permission!");
+    public Role createRole(CreateRoleRequestDto dto) {
+        roleValidationService.validateRoleName(dto);
+        roleValidationService.validateAuthority();
 
         Role role = new Role();
         String roleName = "ROLE_" + dto.getName().toUpperCase(Locale.ENGLISH);
@@ -48,14 +52,8 @@ public class RoleService {
         return roleRepository.save(role);
     }
 
-    public Role getRoleByName(String name) {
-        String roleName = "ROLE_" + name.toUpperCase(Locale.ENGLISH);
-        return roleRepository.findByName(roleName).orElseThrow(() -> new ResourceNotFoundException("Role not found!"));
-    }
-
     public Role updateRole(Long id, CreateRoleRequestDto dto) {
-        if (!authService.isCurrentAuthenticatedUserAdmin())
-            throw new NoAuthorityException("You don't have permission!");
+        roleValidationService.validateAuthority();
 
         Role updateRole = roleRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Role not found!"));
         String roleName = "ROLE_" + dto.getName().toUpperCase(Locale.ENGLISH);
@@ -64,8 +62,8 @@ public class RoleService {
     }
 
     public String deleteRole(Long id) {
-        if (!authService.isCurrentAuthenticatedUserAdmin())
-            throw new NoAuthorityException("You don't have permission!");
+        roleValidationService.validateAuthority();
+
         roleRepository.deleteById(id);
         return "Role removed!";
     }

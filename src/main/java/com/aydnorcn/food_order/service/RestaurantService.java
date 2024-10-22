@@ -48,7 +48,7 @@ public class RestaurantService {
     public Restaurant updateRestaurantById(String restaurantId, CreateRestaurantRequestDto dto) {
         Restaurant restaurant = getRestaurantById(restaurantId);
 
-        restaurantValidationService.validateRestaurantOwnership(restaurant, authService.getCurrentAuthenticatedUser());
+        restaurantValidationService.validateAuthority(restaurant, authService.getCurrentAuthenticatedUser());
 
         restaurant.setName(dto.getName());
         restaurant.setAddress(dto.getAddress());
@@ -66,7 +66,7 @@ public class RestaurantService {
     public Restaurant patchRestaurant(String restaurantId, PatchRestaurantRequestDto dto){
         Restaurant restaurant = getRestaurantById(restaurantId);
 
-        restaurantValidationService.validateRestaurantOwnership(restaurant, authService.getCurrentAuthenticatedUser());
+        restaurantValidationService.validateAuthority(restaurant, authService.getCurrentAuthenticatedUser());
 
         if (dto.getName() != null) restaurant.setName(dto.getName());
         if (dto.getAddress() != null) restaurant.setAddress(dto.getAddress());
@@ -84,7 +84,7 @@ public class RestaurantService {
     public void deleteRestaurantById(String restaurantId) {
         Restaurant restaurant = getRestaurantById(restaurantId);
 
-        restaurantValidationService.validateRestaurantOwnership(restaurant, authService.getCurrentAuthenticatedUser());
+        restaurantValidationService.validateAuthority(restaurant, authService.getCurrentAuthenticatedUser());
 
         restaurantRepository.delete(restaurant);
     }
