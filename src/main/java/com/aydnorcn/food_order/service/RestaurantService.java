@@ -22,19 +22,19 @@ import java.util.stream.Collectors;
 public class RestaurantService {
 
     private final RestaurantRepository restaurantRepository;
-    private final AuthService authService;
     private final RestaurantValidationService restaurantValidationService;
+    private final UserContextService userContextService;
 
     public Restaurant getRestaurantById(String restaurantId) {
         return restaurantRepository.findById(restaurantId).orElseThrow(() -> new ResourceNotFoundException("Restaurant not found!"));
     }
 
-    public PageResponseDto<Restaurant> getRestaurants(int pageNo, int pageSize){
+    public PageResponseDto<Restaurant> getRestaurants(int pageNo, int pageSize) {
         return new PageResponseDto<>(restaurantRepository.findAll(PageRequest.of(pageNo, pageSize)));
     }
 
-    public Restaurant createRestaurant(CreateRestaurantRequestDto dto){
-        User currentAuthenticatedUser = authService.getCurrentAuthenticatedUser();
+    public Restaurant createRestaurant(CreateRestaurantRequestDto dto) {
+        User currentAuthenticatedUser = userContextService.getCurrentAuthenticatedUser();
 
         Restaurant restaurant = new Restaurant(dto.getName(), dto.getAddress(), dto.getPhone(), dto.getEmail(),
                 currentAuthenticatedUser, LocalTime.parse(dto.getOpenTime()), LocalTime.parse(dto.getCloseTime()),
@@ -48,7 +48,7 @@ public class RestaurantService {
     public Restaurant updateRestaurantById(String restaurantId, CreateRestaurantRequestDto dto) {
         Restaurant restaurant = getRestaurantById(restaurantId);
 
-        restaurantValidationService.validateAuthority(restaurant, authService.getCurrentAuthenticatedUser());
+        restaurantValidationService.validateAuthority(restaurant, userContextService.getCurrentAuthenticatedUser());
 
         restaurant.setName(dto.getName());
         restaurant.setAddress(dto.getAddress());
@@ -63,10 +63,10 @@ public class RestaurantService {
         return restaurantRepository.save(restaurant);
     }
 
-    public Restaurant patchRestaurant(String restaurantId, PatchRestaurantRequestDto dto){
+    public Restaurant patchRestaurant(String restaurantId, PatchRestaurantRequestDto dto) {
         Restaurant restaurant = getRestaurantById(restaurantId);
 
-        restaurantValidationService.validateAuthority(restaurant, authService.getCurrentAuthenticatedUser());
+        restaurantValidationService.validateAuthority(restaurant, userContextService.getCurrentAuthenticatedUser());
 
         if (dto.getName() != null) restaurant.setName(dto.getName());
         if (dto.getAddress() != null) restaurant.setAddress(dto.getAddress());
@@ -74,7 +74,8 @@ public class RestaurantService {
         if (dto.getEmail() != null) restaurant.setEmail(dto.getEmail());
         if (dto.getOpenTime() != null) restaurant.setOpenTime(LocalTime.parse(dto.getOpenTime()));
         if (dto.getCloseTime() != null) restaurant.setCloseTime(LocalTime.parse(dto.getCloseTime()));
-        if (dto.getOpenDays() != null) restaurant.setOpenDays(dto.getOpenDays().stream().map(day -> DayOfWeek.valueOf(day.toUpperCase(Locale.ENGLISH))).collect(Collectors.toList()));
+        if (dto.getOpenDays() != null)
+            restaurant.setOpenDays(dto.getOpenDays().stream().map(day -> DayOfWeek.valueOf(day.toUpperCase(Locale.ENGLISH))).collect(Collectors.toList()));
 
         restaurantValidationService.validateRestaurantDetails(restaurant);
 
@@ -84,7 +85,7 @@ public class RestaurantService {
     public void deleteRestaurantById(String restaurantId) {
         Restaurant restaurant = getRestaurantById(restaurantId);
 
-        restaurantValidationService.validateAuthority(restaurant, authService.getCurrentAuthenticatedUser());
+        restaurantValidationService.validateAuthority(restaurant, userContextService.getCurrentAuthenticatedUser());
 
         restaurantRepository.delete(restaurant);
     }

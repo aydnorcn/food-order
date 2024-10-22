@@ -2,12 +2,14 @@ package com.aydnorcn.food_order.jwt;
 
 import com.aydnorcn.food_order.exception.APIException;
 import com.aydnorcn.food_order.exception.ErrorMessage;
+import com.aydnorcn.food_order.exception.ResourceNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,11 +33,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = getTokenFromRequest(request);
 
         try {
+            String token = getTokenFromRequest(request);
             if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
-                //get username from token
                 String username = tokenProvider.getUsername(token);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -61,6 +62,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             PrintWriter out = response.getWriter();
             out.write(mapper.writeValueAsString(errorMessage));
             out.flush();
+        } catch (ResourceNotFoundException e){
+            System.out.println("----");
+            ErrorMessage errorMessage = new ErrorMessage(new Date(), e.getMessage());
+
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+
+            response.setContentType("application/json");
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+
+            PrintWriter out = response.getWriter();
+            out.write(mapper.writeValueAsString(errorMessage));
+            out.flush();
         }
     }
 
@@ -69,6 +83,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
-        return null;
+        throw new ResourceNotFoundException("Token not found!");
     }
 }

@@ -16,18 +16,11 @@ import java.util.List;
 import java.util.Locale;
 
 @Service
+@RequiredArgsConstructor
 public class RoleService {
 
-    private RoleRepository roleRepository;
-    private AuthService authService;
-    private RoleValidationService roleValidationService;
-
-    @Autowired
-    public RoleService(RoleRepository roleRepository, @Lazy AuthService authService, RoleValidationService roleValidationService) {
-        this.roleRepository = roleRepository;
-        this.authService = authService;
-        this.roleValidationService = roleValidationService;
-    }
+    private final RoleRepository roleRepository;
+    private final RoleValidationService roleValidationService;
 
     public Role getRoleById(Long id) {
         return roleRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Role not found!"));

@@ -7,7 +7,6 @@ import com.aydnorcn.food_order.dto.auth.RegisterResponse;
 import com.aydnorcn.food_order.entity.Role;
 import com.aydnorcn.food_order.entity.User;
 import com.aydnorcn.food_order.exception.AlreadyExistsException;
-import com.aydnorcn.food_order.exception.ResourceNotFoundException;
 import com.aydnorcn.food_order.jwt.JwtTokenProvider;
 import com.aydnorcn.food_order.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -61,18 +60,5 @@ public class AuthService {
 
         userRepository.save(user);
         return new RegisterResponse(request.getEmail(), request.getFirstName(), request.getLastName());
-    }
-
-    public User getCurrentAuthenticatedUser() {
-        String currentPrincipalEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByEmail(currentPrincipalEmail).orElseThrow(() -> new ResourceNotFoundException("User not found!"));
-    }
-
-    public boolean isCurrentAuthenticatedUserAdmin() {
-        return getCurrentAuthenticatedUser().getRoles().stream().map(Role::getName).anyMatch(x -> x.equals("ROLE_ADMIN"));
-    }
-
-    public boolean isCurrentAuthenticatedUserStaff(){
-        return getCurrentAuthenticatedUser().getRoles().stream().map(Role::getName).anyMatch(x -> x.equals("ROLE_STAFF"));
     }
 }
