@@ -4,6 +4,7 @@ import com.aydnorcn.food_order.dto.auth.LoginRequest;
 import com.aydnorcn.food_order.dto.auth.LoginResponse;
 import com.aydnorcn.food_order.dto.auth.RegisterRequest;
 import com.aydnorcn.food_order.dto.auth.RegisterResponse;
+import com.aydnorcn.food_order.entity.Cart;
 import com.aydnorcn.food_order.entity.Role;
 import com.aydnorcn.food_order.entity.User;
 import com.aydnorcn.food_order.exception.AlreadyExistsException;
@@ -53,6 +54,7 @@ public class AuthService {
 
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setCart(new Cart());
 
         user.setRoles(roles);
         user.setFirstName(request.getFirstName());
