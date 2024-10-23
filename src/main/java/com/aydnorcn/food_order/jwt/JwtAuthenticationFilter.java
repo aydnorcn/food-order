@@ -34,6 +34,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+        String path = request.getRequestURI();
+
+        if(path.equals("/api/auth/login") || path.equals("/api/auth/register")){
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
             String token = getTokenFromRequest(request);
             if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
@@ -63,7 +70,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             out.write(mapper.writeValueAsString(errorMessage));
             out.flush();
         } catch (ResourceNotFoundException e){
-            System.out.println("----");
             ErrorMessage errorMessage = new ErrorMessage(new Date(), e.getMessage());
 
             ObjectMapper mapper = new ObjectMapper();
