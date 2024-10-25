@@ -26,18 +26,22 @@ public class OrderController {
     }
 
     @GetMapping("/orders")
-    public ResponseEntity<PageResponseDto<OrderResponseDto>> getOrders(@RequestParam(name = "page-no", defaultValue = "0") int pageNo,
+    public ResponseEntity<PageResponseDto<OrderResponseDto>> getOrders(@RequestParam(name = "min-price", required = false) Double minPrice, @RequestParam(name = "max-price", required = false) Double maxPrice,
+                                                                       @RequestParam(name = "status", required = false) String status,
+                                                                       @RequestParam(name = "page-no", defaultValue = "0") int pageNo,
                                                                        @RequestParam(name = "page-size", defaultValue = "10") int pageSize) {
-        PageResponseDto<Order> orders = orderService.getOrders(pageNo, pageSize);
+        PageResponseDto<Order> orders = orderService.getOrders(minPrice, maxPrice, status, pageNo, pageSize);
         List<OrderResponseDto> orderResponses = orders.getContent().stream().map(OrderResponseDto::new).toList();
         return ResponseEntity.ok(new PageResponseDto<>(orderResponses, orders.getPageNo(), orders.getPageSize(), orders.getTotalElements(), orders.getTotalPages()));
     }
 
     @GetMapping("/users/{userId}/orders")
     public ResponseEntity<PageResponseDto<OrderResponseDto>> getUserOrders(@PathVariable String userId,
+                                                                           @RequestParam(name = "min-price", required = false) Double minPrice, @RequestParam(name = "max-price", required = false) Double maxPrice,
+                                                                           @RequestParam(name = "status", required = false) String status,
                                                                            @RequestParam(name = "page-no", defaultValue = "0") int pageNo,
                                                                            @RequestParam(name = "page-size", defaultValue = "10") int pageSize) {
-        PageResponseDto<Order> orders = orderService.getUserOrders(userId, pageNo, pageSize);
+        PageResponseDto<Order> orders = orderService.getUserOrders(userId, minPrice, maxPrice, status, pageNo, pageSize);
         List<OrderResponseDto> orderResponses = orders.getContent().stream().map(OrderResponseDto::new).toList();
         return ResponseEntity.ok(new PageResponseDto<>(orderResponses, orders.getPageNo(), orders.getPageSize(), orders.getTotalElements(), orders.getTotalPages()));
     }

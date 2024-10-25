@@ -4,12 +4,15 @@ import com.aydnorcn.food_order.dto.PageResponseDto;
 import com.aydnorcn.food_order.dto.order.CreateOrderRequestDto;
 import com.aydnorcn.food_order.entity.*;
 import com.aydnorcn.food_order.exception.ResourceNotFoundException;
+import com.aydnorcn.food_order.filter.OrderFilter;
 import com.aydnorcn.food_order.repository.OrderRepository;
 import com.aydnorcn.food_order.service.validation.OrderValidationService;
 import com.aydnorcn.food_order.utils.OrderStatus;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,24 +33,27 @@ public class OrderService {
         return orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found"));
     }
 
-    public PageResponseDto<Order> getOrders(int pageNo, int pageSize) {
+    public PageResponseDto<Order> getOrders(Double minPrice, Double maxPrice, String status, int pageNo, int pageSize) {
         User user = userContextService.getCurrentAuthenticatedUser();
 
-        Page<Order> page = orderRepository.findAllByUser(user, PageRequest.of(pageNo, pageSize));
+        Specification<Order> specification = OrderFilter.filter(minPrice, maxPrice, status);
+        Page<Order> page = orderRepository.findAllByUser(user, specification, PageRequest.of(pageNo, pageSize));
 
         return new PageResponseDto<>(page);
     }
 
-    public PageResponseDto<Order> getUserOrders(String userId, int pageNo, int pageSize) {
+    public PageResponseDto<Order> getUserOrders(String userId,Double minPrice, Double maxPrice, String status, int pageNo, int pageSize) {
         User user = userService.getUserById(userId);
 
         orderValidationService.validateAuthority(user);
 
-        Page<Order> page = orderRepository.findAllByUser(user, PageRequest.of(pageNo, pageSize));
+        Specification<Order> specification = OrderFilter.filter(minPrice, maxPrice, status);
+        Page<Order> page = orderRepository.findAllByUser(user, specification, PageRequest.of(pageNo, pageSize));
 
         return new PageResponseDto<>(page);
     }
 
+    @Transactional
     public Order createOrder(CreateOrderRequestDto dto) {
         User user = userContextService.getCurrentAuthenticatedUser();
         Coupon coupon = (dto.getCouponCode() != null) ? couponService.getCouponByCode(dto.getCouponCode()) : null;
