@@ -2,6 +2,7 @@ package com.aydnorcn.food_order.service;
 
 import com.aydnorcn.food_order.dto.PageResponseDto;
 import com.aydnorcn.food_order.dto.cart.CartRequestDto;
+import com.aydnorcn.food_order.entity.Cart;
 import com.aydnorcn.food_order.entity.CartItem;
 import com.aydnorcn.food_order.entity.Food;
 import com.aydnorcn.food_order.entity.User;
@@ -12,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -85,5 +88,13 @@ public class CartService {
         cartItem.setQuantity(cartItem.getQuantity() + dto.getQuantity());
 
         return cartItemRepository.save(cartItem);
+    }
+
+    protected void clearCartItems(Cart cart){
+        cartItemRepository.deleteAll(cartItemRepository.findAllByCart(cart));
+    }
+
+    protected List<CartItem> findAllByCart(Cart cart){
+        return cartItemRepository.findAllByCart(cart);
     }
 }

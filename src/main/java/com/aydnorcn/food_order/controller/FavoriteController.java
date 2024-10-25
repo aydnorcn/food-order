@@ -1,6 +1,7 @@
 package com.aydnorcn.food_order.controller;
 
 import com.aydnorcn.food_order.dto.PageResponseDto;
+import com.aydnorcn.food_order.dto.favorite.FavoriteResponseDto;
 import com.aydnorcn.food_order.entity.Favorite;
 import com.aydnorcn.food_order.service.FavoriteService;
 import lombok.RequiredArgsConstructor;
@@ -18,21 +19,26 @@ public class FavoriteController {
     private final FavoriteService favoriteService;
 
     @GetMapping("/favorites")
-    public ResponseEntity<PageResponseDto<Favorite>> getFavoriteFoods(@RequestParam(name = "page-no", defaultValue = "0", required = false) int pageNo,
-                                                            @RequestParam(name = "page-size", defaultValue = "10", required = false) int pageSize) {
-        return ResponseEntity.ok(favoriteService.getFavoriteFoods(pageNo, pageSize));
+    public ResponseEntity<PageResponseDto<FavoriteResponseDto>> getFavoriteFoods(@RequestParam(name = "page-no", defaultValue = "0", required = false) int pageNo,
+                                                                                 @RequestParam(name = "page-size", defaultValue = "10", required = false) int pageSize) {
+
+        PageResponseDto<Favorite> favorites = favoriteService.getFavoriteFoods(pageNo, pageSize);
+        List<FavoriteResponseDto> favoriteResponses = favorites.getContent().stream().map(FavoriteResponseDto::new).toList();
+        return ResponseEntity.ok(new PageResponseDto<>(favoriteResponses, favorites.getPageNo(), favorites.getPageSize(), favorites.getTotalElements(), favorites.getTotalPages()));
     }
 
     @GetMapping("/users/{userId}/favorites")
-    public ResponseEntity<PageResponseDto<Favorite>> getUserFavoriteFoods(@PathVariable String userId,
-                                               @RequestParam(name = "page-no", defaultValue = "0", required = false) int pageNo,
-                                               @RequestParam(name = "page-size", defaultValue = "10", required = false) int pageSize) {
-        return ResponseEntity.ok(favoriteService.getUserFavoriteFoods(userId, pageNo, pageSize));
+    public ResponseEntity<PageResponseDto<FavoriteResponseDto>> getUserFavoriteFoods(@PathVariable String userId,
+                                                                                     @RequestParam(name = "page-no", defaultValue = "0", required = false) int pageNo,
+                                                                                     @RequestParam(name = "page-size", defaultValue = "10", required = false) int pageSize) {
+        PageResponseDto<Favorite> favorites = favoriteService.getUserFavoriteFoods(userId, pageNo, pageSize);
+        List<FavoriteResponseDto> favoriteResponses = favorites.getContent().stream().map(FavoriteResponseDto::new).toList();
+        return ResponseEntity.ok(new PageResponseDto<>(favoriteResponses, favorites.getPageNo(), favorites.getPageSize(), favorites.getTotalElements(), favorites.getTotalPages()));
     }
 
     @PostMapping("/foods/{foodId}/favorites")
-    public ResponseEntity<Favorite> addFoodToFavorite(@PathVariable Long foodId) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(favoriteService.addFoodToFavorite(foodId));
+    public ResponseEntity<FavoriteResponseDto> addFoodToFavorite(@PathVariable Long foodId) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(new FavoriteResponseDto(favoriteService.addFoodToFavorite(foodId)));
     }
 
     @DeleteMapping("/foods/{foodId}/favorites")
