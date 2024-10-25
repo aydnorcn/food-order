@@ -50,7 +50,7 @@ public class OrderService {
 
     public Order createOrder(CreateOrderRequestDto dto) {
         User user = userContextService.getCurrentAuthenticatedUser();
-        Coupon coupon = couponService.getCouponByCode(dto.getCouponCode());
+        Coupon coupon = (dto.getCouponCode() != null) ? couponService.getCouponByCode(dto.getCouponCode()) : null;
 
         List<CartItem> items = cartService.findAllByCart(user.getCart());
 
@@ -59,7 +59,7 @@ public class OrderService {
         }
 
         Double total = items.stream().mapToDouble(item -> item.getFood().getPrice() * item.getQuantity()).sum();
-        Double discount = total * (coupon.getDiscountPercentage() / 100);
+        Double discount = (coupon != null) ? total * coupon.getDiscountPercentage() : 0;
 
         Address address = addressService.getAddressById(dto.getAddressId());
 
@@ -68,9 +68,14 @@ public class OrderService {
         }
 
         Order order = new Order(user, dto.getNote(), total - discount, discount, coupon, OrderStatus.PENDING, address);
+        List<OrderItem> orderItems = items.stream().map(x -> new OrderItem(order,x.getFood(),x.getQuantity())).toList();
+        order.setItems(orderItems);
 
         cartService.clearCartItems(user.getCart());
-        couponService.useCoupon(coupon);
+
+        if(coupon != null){
+            couponService.useCoupon(coupon);
+        }
 
         return orderRepository.save(order);
     }

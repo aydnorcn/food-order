@@ -46,7 +46,7 @@ public class OrderItem {
         this.price = food.getPrice();
         this.imageUrl = food.getImageUrl();
         this.category = food.getCategory().getName();
-        this.restaurant = food.getRestaurant().getName();
+        this.restaurant = food.getRestaurant().getId();
         this.quantity = quantity;
         this.totalPrice = food.getPrice() * quantity;
     }

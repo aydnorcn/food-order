@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 public class AddressResponseDto {
 
+    private Long id;
     private String fullName;
     private String address;
     private String city;
@@ -15,6 +16,7 @@ public class AddressResponseDto {
     private String userId;
 
     public AddressResponseDto(Address address){
+        this.id = address.getId();
         this.fullName = address.getFullName();
         this.address = address.getAddress();
         this.city = address.getCity();

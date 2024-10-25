@@ -13,7 +13,7 @@ public class FoodValidationService {
     private final UserContextService userContextService;
 
     public void validateAuthority(Restaurant restaurant) {
-        if (restaurant.getId().equals(userContextService.getCurrentAuthenticatedUser().getId())) {
+        if (restaurant.getOwner().getId().equals(userContextService.getCurrentAuthenticatedUser().getId())) {
             return;
         }
 

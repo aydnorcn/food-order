@@ -16,19 +16,19 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ReviewService {
 
-    private final ReviewRepository repository;
+    private final ReviewRepository reviewRepository;
     private final UserContextService userContextService;
     private final UserService userService;
     private final OrderService orderService;
     private final ReviewValidationService reviewValidationService;
 
     public Review getReviewById(Long reviewId) {
-        return repository.findById(reviewId).orElseThrow(() -> new ResourceNotFoundException("Review not found!"));
+        return reviewRepository.findById(reviewId).orElseThrow(() -> new ResourceNotFoundException("Review not found!"));
     }
 
     public PageResponseDto<Review> getReviews(int pageNo, int pageSize) {
         User user = userContextService.getCurrentAuthenticatedUser();
-        return new PageResponseDto<>(repository.findAllByUser(user, PageRequest.of(pageNo, pageSize)));
+        return new PageResponseDto<>(reviewRepository.findAllByUser(user, PageRequest.of(pageNo, pageSize)));
     }
 
     public PageResponseDto<Review> getUserReviews(String userId, int pageNo, int pageSize) {
@@ -36,12 +36,16 @@ public class ReviewService {
 
         reviewValidationService.validateAuthority(user);
 
-        return new PageResponseDto<>(repository.findAllByUser(user, PageRequest.of(pageNo, pageSize)));
+        return new PageResponseDto<>(reviewRepository.findAllByUser(user, PageRequest.of(pageNo, pageSize)));
     }
 
     public Review createReview(Long orderId, CreateReviewRequestDto dto) {
         Order order = orderService.getOrderById(orderId);
         User user = userContextService.getCurrentAuthenticatedUser();
+
+        if(reviewRepository.existsByOrder(order)) {
+            throw new ResourceNotFoundException("Review already exists!");
+        }
 
         reviewValidationService.validateAuthority(order.getUser());
 
@@ -51,7 +55,7 @@ public class ReviewService {
         review.setComment(dto.getComment());
         review.setRating(dto.getRating());
 
-        return repository.save(review);
+        return reviewRepository.save(review);
     }
 
     public void deleteReview(Long reviewId) {
@@ -59,8 +63,6 @@ public class ReviewService {
 
         reviewValidationService.validateAuthority(review.getUser());
 
-        repository.delete(review);
+        reviewRepository.delete(review);
     }
-
-
 }
