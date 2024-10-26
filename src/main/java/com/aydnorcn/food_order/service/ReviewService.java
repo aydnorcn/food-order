@@ -43,11 +43,8 @@ public class ReviewService {
         Order order = orderService.getOrderById(orderId);
         User user = userContextService.getCurrentAuthenticatedUser();
 
-        if(reviewRepository.existsByOrder(order)) {
-            throw new ResourceNotFoundException("Review already exists!");
-        }
-
         reviewValidationService.validateAuthority(order.getUser());
+        reviewValidationService.validateReviewCreation(order);
 
         Review review = new Review();
         review.setUser(user);
