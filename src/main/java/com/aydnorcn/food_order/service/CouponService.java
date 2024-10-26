@@ -39,6 +39,7 @@ public class CouponService {
         newCoupon.setDiscountPercentage(dto.getDiscountPercentage());
         newCoupon.setMinimumAmount(dto.getMinimumAmount());
         newCoupon.setExpireDate(dto.getExpireDate());
+        newCoupon.setActive(dto.getActive());
         newCoupon.setRemainingUsages(dto.getRemainingUsages());
 
         return couponRepository.save(newCoupon);
@@ -73,6 +74,8 @@ public class CouponService {
     }
 
     protected void useCoupon(Coupon coupon){
+        couponValidationService.validateCoupon(coupon);
+
         if(coupon.getRemainingUsages() > 0){
             coupon.setRemainingUsages(coupon.getRemainingUsages() - 1);
             couponRepository.save(coupon);

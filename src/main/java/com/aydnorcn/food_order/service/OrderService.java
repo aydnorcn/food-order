@@ -65,7 +65,7 @@ public class OrderService {
         }
 
         Double total = items.stream().mapToDouble(item -> item.getFood().getPrice() * item.getQuantity()).sum();
-        Double discount = (coupon != null) ? total * coupon.getDiscountPercentage() : 0;
+        Double discount = (coupon != null) ? total * (coupon.getDiscountPercentage() / 100) : 0;
 
         Address address = addressService.getAddressById(dto.getAddressId());
 
