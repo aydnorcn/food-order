@@ -36,8 +36,8 @@ public class OrderService {
     public PageResponseDto<Order> getOrders(Double minPrice, Double maxPrice, String status, int pageNo, int pageSize) {
         User user = userContextService.getCurrentAuthenticatedUser();
 
-        Specification<Order> specification = OrderFilter.filter(minPrice, maxPrice, status);
-        Page<Order> page = orderRepository.findAllByUser(user, specification, PageRequest.of(pageNo, pageSize));
+        Specification<Order> specification = OrderFilter.filter(user, minPrice, maxPrice, status);
+        Page<Order> page = orderRepository.findAll(specification, PageRequest.of(pageNo, pageSize));
 
         return new PageResponseDto<>(page);
     }
@@ -47,8 +47,8 @@ public class OrderService {
 
         orderValidationService.validateAuthority(user);
 
-        Specification<Order> specification = OrderFilter.filter(minPrice, maxPrice, status);
-        Page<Order> page = orderRepository.findAllByUser(user, specification, PageRequest.of(pageNo, pageSize));
+        Specification<Order> specification = OrderFilter.filter(user, minPrice, maxPrice, status);
+        Page<Order> page = orderRepository.findAll(specification, PageRequest.of(pageNo, pageSize));
 
         return new PageResponseDto<>(page);
     }

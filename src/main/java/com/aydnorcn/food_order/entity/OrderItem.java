@@ -18,23 +18,25 @@ public class OrderItem {
     @JoinColumn(name = "order_id")
     private Order order;
 
+    @ManyToOne
+    @JoinColumn(name = "restaurant_id")
+    private Restaurant restaurant;
+
     private String name;
     private String description;
     private Double price;
     private String imageUrl;
     private String category;
-    private String restaurant;
 
     private Integer quantity;
     private Double totalPrice;
 
-    public OrderItem(String name, String description, Double price, String imageUrl, String category, String restaurant, Integer quantity, Double totalPrice) {
+    public OrderItem(String name, String description, Double price, String imageUrl, String category, Integer quantity, Double totalPrice) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.imageUrl = imageUrl;
         this.category = category;
-        this.restaurant = restaurant;
         this.quantity = quantity;
         this.totalPrice = totalPrice;
     }
@@ -46,7 +48,7 @@ public class OrderItem {
         this.price = food.getPrice();
         this.imageUrl = food.getImageUrl();
         this.category = food.getCategory().getName();
-        this.restaurant = food.getRestaurant().getId();
+        this.restaurant = food.getRestaurant();
         this.quantity = quantity;
         this.totalPrice = food.getPrice() * quantity;
     }

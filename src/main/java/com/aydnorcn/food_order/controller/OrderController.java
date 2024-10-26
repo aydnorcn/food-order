@@ -26,7 +26,8 @@ public class OrderController {
     }
 
     @GetMapping("/orders")
-    public ResponseEntity<PageResponseDto<OrderResponseDto>> getOrders(@RequestParam(name = "min-price", required = false) Double minPrice, @RequestParam(name = "max-price", required = false) Double maxPrice,
+    public ResponseEntity<PageResponseDto<OrderResponseDto>> getOrders(@RequestParam(name = "min-price", required = false) Double minPrice,
+                                                                       @RequestParam(name = "max-price", required = false) Double maxPrice,
                                                                        @RequestParam(name = "status", required = false) String status,
                                                                        @RequestParam(name = "page-no", defaultValue = "0") int pageNo,
                                                                        @RequestParam(name = "page-size", defaultValue = "10") int pageSize) {

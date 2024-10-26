@@ -23,7 +23,7 @@ public class OrderItemResponseDto {
         this.description = item.getDescription();
         this.price = item.getPrice();
         this.category = item.getCategory();
-        this.restaurantId = item.getRestaurant();
+        this.restaurantId = item.getRestaurant().getId();
         this.quantity = item.getQuantity();
         this.totalPrice = item.getTotalPrice();
     }
