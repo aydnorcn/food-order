@@ -18,11 +18,19 @@ public class CouponService {
     private final CouponValidationService couponValidationService;
 
     public Coupon getCouponById(Long couponId){
-        return couponRepository.findById(couponId).orElseThrow(() -> new ResourceNotFoundException("Coupon not found!"));
+        Coupon coupon = couponRepository.findById(couponId).orElseThrow(() -> new ResourceNotFoundException("Coupon not found!"));
+
+        couponValidationService.validateAuthority();
+
+        return coupon;
     }
 
     public Coupon getCouponByCode(String couponCode){
-        return couponRepository.findByCode(couponCode).orElseThrow(() -> new ResourceNotFoundException("Coupon not found!"));
+        Coupon coupon = couponRepository.findByCode(couponCode).orElseThrow(() -> new ResourceNotFoundException("Coupon not found!"));
+
+        couponValidationService.validateAuthority();
+
+        return coupon;
     }
 
     public Coupon createCoupon(CreateCouponRequestDto dto) {

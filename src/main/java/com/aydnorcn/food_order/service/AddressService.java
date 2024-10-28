@@ -17,7 +17,11 @@ public class AddressService {
     private final UserContextService userContextService;
 
     public Address getAddressById(Long addressId){
-        return addressRepository.findById(addressId).orElseThrow(() -> new ResourceNotFoundException("Address not found"));
+        Address address = addressRepository.findById(addressId).orElseThrow(() -> new ResourceNotFoundException("Address not found"));
+
+        validateAuthority(address);
+
+        return address;
     }
 
     public Address createAddress(CreateAddressRequestDto dto){

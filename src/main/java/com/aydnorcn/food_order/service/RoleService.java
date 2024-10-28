@@ -23,10 +23,13 @@ public class RoleService {
     private final RoleValidationService roleValidationService;
 
     public Role getRoleById(Long id) {
+        roleValidationService.validateAuthority();
+
         return roleRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Role not found!"));
     }
 
     public List<Role> getAllRoles() {
+        roleValidationService.validateAuthority();
         return roleRepository.findAll();
     }
 

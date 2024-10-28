@@ -23,7 +23,11 @@ public class ReviewService {
     private final ReviewValidationService reviewValidationService;
 
     public Review getReviewById(Long reviewId) {
-        return reviewRepository.findById(reviewId).orElseThrow(() -> new ResourceNotFoundException("Review not found!"));
+        Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new ResourceNotFoundException("Review not found!"));
+
+        reviewValidationService.validateAuthority(review.getUser());
+
+        return review;
     }
 
     public PageResponseDto<Review> getReviews(int pageNo, int pageSize) {

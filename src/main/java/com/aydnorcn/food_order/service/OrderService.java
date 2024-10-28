@@ -30,7 +30,11 @@ public class OrderService {
     private final OrderValidationService orderValidationService;
 
     public Order getOrderById(Long orderId) {
-        return orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+
+        orderValidationService.validateAuthority(order.getUser());
+
+        return order;
     }
 
     public PageResponseDto<Order> getOrders(Double minPrice, Double maxPrice, String status, int pageNo, int pageSize) {
