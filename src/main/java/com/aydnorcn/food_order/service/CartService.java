@@ -36,7 +36,7 @@ public class CartService {
     public PageResponseDto<CartItem> getUserCart(String userId, int pageNo, int pageSize) {
         User user = userService.getUserById(userId);
 
-        cartValidationService.validateAuthority(user);
+        cartValidationService.validateAuthority(user, String.format("view cart of user with ID %s", userId));
 
         Page<CartItem> page = cartItemRepository.findByCart(user.getCart(), PageRequest.of(pageNo, pageSize));
         return new PageResponseDto<>(page);
@@ -67,7 +67,7 @@ public class CartService {
         CartItem cartItem = cartItemRepository.findByCartAndFood(user.getCart(), food)
                 .orElseThrow(() -> new ResourceNotFoundException("Food not found in cart!"));
 
-        cartValidationService.validateAuthority(user);
+        cartValidationService.validateAuthority(user, String.format("remove food with ID %s from cart", dto.getFoodId()));
 
         if (dto.getQuantity() >= cartItem.getQuantity()) {
             cartItemRepository.delete(cartItem);
@@ -83,7 +83,7 @@ public class CartService {
         CartItem cartItem = cartItemRepository.findByCartAndFood(user.getCart(), food)
                 .orElse(new CartItem(user.getCart(), food, 0));
 
-        cartValidationService.validateAuthority(user);
+        cartValidationService.validateAuthority(user, String.format("add food with ID %s to cart", dto.getFoodId()));
 
         cartItem.setQuantity(cartItem.getQuantity() + dto.getQuantity());
 

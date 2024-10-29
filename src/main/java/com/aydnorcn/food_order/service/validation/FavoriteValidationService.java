@@ -12,10 +12,10 @@ public class FavoriteValidationService {
 
     private final UserContextService userContextService;
 
-    public void validateAuthority(User user) {
+    public void validateAuthority(User user, String action) {
         User currentUser = userContextService.getCurrentAuthenticatedUser();
         if (!currentUser.getId().equals(user.getId()) && !userContextService.isCurrentAuthenticatedUserAdmin() && !userContextService.isCurrentAuthenticatedUserStaff()) {
-            throw new NoAuthorityException("You are not authorized to remove this user's favorites!");
+            throw new NoAuthorityException("User with ID " + user.getId() + " is not authorized to " + action);
         }
     }
 }

@@ -9,6 +9,7 @@ import com.aydnorcn.food_order.exception.ResourceNotFoundException;
 import com.aydnorcn.food_order.repository.RestaurantRepository;
 import com.aydnorcn.food_order.service.validation.RestaurantValidationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import java.time.LocalTime;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RestaurantService {
@@ -42,13 +44,17 @@ public class RestaurantService {
 
         restaurantValidationService.validateRestaurantDetails(restaurant);
 
-        return restaurantRepository.save(restaurant);
+        Restaurant savedRestaurant = restaurantRepository.save(restaurant);
+
+        log.info("Restaurant created | restaurantId: {}, ownerId: {}", restaurant.getId(), currentAuthenticatedUser.getId());
+
+        return savedRestaurant;
     }
 
     public Restaurant updateRestaurantById(String restaurantId, CreateRestaurantRequestDto dto) {
         Restaurant restaurant = getRestaurantById(restaurantId);
 
-        restaurantValidationService.validateAuthority(restaurant, userContextService.getCurrentAuthenticatedUser());
+        restaurantValidationService.validateAuthority(restaurant, userContextService.getCurrentAuthenticatedUser(), String.format("update restaurant with ID %s", restaurantId));
 
         restaurant.setName(dto.getName());
         restaurant.setAddress(dto.getAddress());
@@ -60,13 +66,17 @@ public class RestaurantService {
 
         restaurantValidationService.validateRestaurantDetails(restaurant);
 
-        return restaurantRepository.save(restaurant);
+        Restaurant savedRestaurant = restaurantRepository.save(restaurant);
+
+        log.info("Restaurant updated | restaurantId: {}, ownerId: {}", restaurant.getId(), userContextService.getCurrentAuthenticatedUser().getId());
+
+        return savedRestaurant;
     }
 
     public Restaurant patchRestaurant(String restaurantId, PatchRestaurantRequestDto dto) {
         Restaurant restaurant = getRestaurantById(restaurantId);
 
-        restaurantValidationService.validateAuthority(restaurant, userContextService.getCurrentAuthenticatedUser());
+        restaurantValidationService.validateAuthority(restaurant, userContextService.getCurrentAuthenticatedUser(), String.format("patch restaurant with ID %s", restaurantId));
 
         if (dto.getName() != null) restaurant.setName(dto.getName());
         if (dto.getAddress() != null) restaurant.setAddress(dto.getAddress());
@@ -79,14 +89,20 @@ public class RestaurantService {
 
         restaurantValidationService.validateRestaurantDetails(restaurant);
 
-        return restaurantRepository.save(restaurant);
+        Restaurant savedRestaurant = restaurantRepository.save(restaurant);
+
+        log.info("Restaurant patched | restaurantId: {}, ownerId: {}", restaurant.getId(), userContextService.getCurrentAuthenticatedUser().getId());
+
+        return savedRestaurant;
     }
 
     public void deleteRestaurantById(String restaurantId) {
         Restaurant restaurant = getRestaurantById(restaurantId);
 
-        restaurantValidationService.validateAuthority(restaurant, userContextService.getCurrentAuthenticatedUser());
+        restaurantValidationService.validateAuthority(restaurant, userContextService.getCurrentAuthenticatedUser(), String.format("delete restaurant with ID %s", restaurantId));
 
         restaurantRepository.delete(restaurant);
+
+        log.info("Restaurant deleted | restaurantId: {}, ownerId: {}", restaurant.getId(), userContextService.getCurrentAuthenticatedUser().getId());
     }
 }

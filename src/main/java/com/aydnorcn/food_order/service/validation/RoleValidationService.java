@@ -1,6 +1,7 @@
 package com.aydnorcn.food_order.service.validation;
 
 import com.aydnorcn.food_order.dto.role.CreateRoleRequestDto;
+import com.aydnorcn.food_order.entity.User;
 import com.aydnorcn.food_order.exception.AlreadyExistsException;
 import com.aydnorcn.food_order.exception.NoAuthorityException;
 import com.aydnorcn.food_order.repository.RoleRepository;
@@ -23,8 +24,9 @@ public class RoleValidationService {
         }
     }
 
-    public void validateAuthority() {
+    public void validateAuthority(String action) {
+        User currentUser = userContextService.getCurrentAuthenticatedUser();
         if (!userContextService.isCurrentAuthenticatedUserAdmin())
-            throw new NoAuthorityException("You don't have authority to do this operation!");
+            throw new NoAuthorityException("User with ID " + currentUser.getId() + " is not authorized to " + action);
     }
 }

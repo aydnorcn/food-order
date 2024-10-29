@@ -11,12 +11,14 @@ import com.aydnorcn.food_order.filter.FoodFilter;
 import com.aydnorcn.food_order.repository.FoodRepository;
 import com.aydnorcn.food_order.service.validation.FoodValidationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FoodService {
@@ -46,20 +48,24 @@ public class FoodService {
     public Food createFood(CreateFoodRequestDto dto) {
         Restaurant restaurant = restaurantService.getRestaurantById(dto.getRestaurantId());
 
-        foodValidationService.validateAuthority(restaurant);
+        foodValidationService.validateAuthority(restaurant, String.format("create food for restaurant with ID %s", restaurant.getId()));
 
         String imageUrl = imageService.saveImage(dto.getImage());
         Category category = categoryService.getCategoryById(dto.getCategoryId());
 
         Food food = new Food(dto.getName(), dto.getDescription(), dto.getPrice(), imageUrl, restaurant, category);
 
-        return foodRepository.save(food);
+        Food savedFood = foodRepository.save(food);
+
+        log.info("Food created | foodId: {}, restaurantId: {}", savedFood.getId(), restaurant.getId());
+
+        return savedFood;
     }
 
     public Food updateFood(Long foodId, CreateFoodRequestDto dto) {
         Food food = getFoodById(foodId);
 
-        foodValidationService.validateAuthority(food.getRestaurant());
+        foodValidationService.validateAuthority(food.getRestaurant(), String.format("update food with ID %s", food.getId()));
 
         String imageUrl = imageService.saveImage(dto.getImage());
         Category category = categoryService.getCategoryById(dto.getCategoryId());
@@ -70,13 +76,17 @@ public class FoodService {
         food.setImageUrl(imageUrl);
         food.setCategory(category);
 
-        return foodRepository.save(food);
+        Food savedFood = foodRepository.save(food);
+
+        log.info("Food updated | foodId: {}, restaurantId: {}", savedFood.getId(), savedFood.getRestaurant().getId());
+
+        return savedFood;
     }
 
     public Food patchFood(Long foodId, PatchFoodRequestDto dto) {
         Food food = getFoodById(foodId);
 
-        foodValidationService.validateAuthority(food.getRestaurant());
+        foodValidationService.validateAuthority(food.getRestaurant(), String.format("patch food with ID %s", food.getId()));
 
         if (dto.getName() != null) food.setName(dto.getName());
         if (dto.getDescription() != null) food.setDescription(dto.getDescription());
@@ -84,14 +94,20 @@ public class FoodService {
         if (dto.getImage() != null) food.setImageUrl(imageService.saveImage(dto.getImage()));
         if (dto.getCategoryId() != null) food.setCategory(categoryService.getCategoryById(dto.getCategoryId()));
 
-        return foodRepository.save(food);
+        Food savedFood = foodRepository.save(food);
+
+        log.info("Food patched | foodId: {}, restaurantId: {}", savedFood.getId(), savedFood.getRestaurant().getId());
+
+        return savedFood;
     }
 
     public void deleteFood(Long foodId) {
         Food food = getFoodById(foodId);
 
-        foodValidationService.validateAuthority(food.getRestaurant());
+        foodValidationService.validateAuthority(food.getRestaurant(), String.format("delete food with ID %s", food.getId()));
 
         foodRepository.deleteById(foodId);
+
+        log.info("Food deleted | foodId: {}, restaurantId: {}", foodId, food.getRestaurant().getId());
     }
 }

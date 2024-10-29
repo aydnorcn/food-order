@@ -23,9 +23,9 @@ public class CouponValidationService {
         }
     }
 
-    public void validateAuthority(){
+    public void validateAuthority(String action){
         if(!userContextService.isCurrentAuthenticatedUserAdmin()){
-            throw new NoAuthorityException("You do not have authority to perform this operation!");
+            throw new NoAuthorityException("User with ID " + userContextService.getCurrentAuthenticatedUser().getId() + " is not authorized to " + action);
         }
     }
 }

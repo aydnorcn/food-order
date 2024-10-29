@@ -1,5 +1,6 @@
 package com.aydnorcn.food_order.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -46,7 +48,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoAuthorityException.class)
     public ResponseEntity<ErrorMessage> handleNoAuthorityException(NoAuthorityException exception) {
-        ErrorMessage error = new ErrorMessage(new Date(), exception.getMessage());
+        ErrorMessage error = new ErrorMessage(new Date(), "You are not authorized to perform this action!");
+
+        log.warn("Unauthorized access attempt | {}", exception.getMessage());
 
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }

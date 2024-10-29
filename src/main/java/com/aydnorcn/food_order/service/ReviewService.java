@@ -25,7 +25,7 @@ public class ReviewService {
     public Review getReviewById(Long reviewId) {
         Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new ResourceNotFoundException("Review not found!"));
 
-        reviewValidationService.validateAuthority(review.getUser());
+        reviewValidationService.validateAuthority(review.getUser(), String.format("view review with ID %s", reviewId));
 
         return review;
     }
@@ -38,7 +38,7 @@ public class ReviewService {
     public PageResponseDto<Review> getUserReviews(String userId, int pageNo, int pageSize) {
         User user = userService.getUserById(userId);
 
-        reviewValidationService.validateAuthority(user);
+        reviewValidationService.validateAuthority(user, String.format("view reviews of user with ID %s", userId));
 
         return new PageResponseDto<>(reviewRepository.findAllByUser(user, PageRequest.of(pageNo, pageSize)));
     }
@@ -47,7 +47,7 @@ public class ReviewService {
         Order order = orderService.getOrderById(orderId);
         User user = userContextService.getCurrentAuthenticatedUser();
 
-        reviewValidationService.validateAuthority(order.getUser());
+        reviewValidationService.validateAuthority(order.getUser(), String.format("create review for order with ID %s", orderId));
         reviewValidationService.validateReviewCreation(order);
 
         Review review = new Review();
@@ -62,7 +62,7 @@ public class ReviewService {
     public void deleteReview(Long reviewId) {
         Review review = getReviewById(reviewId);
 
-        reviewValidationService.validateAuthority(review.getUser());
+        reviewValidationService.validateAuthority(review.getUser(), String.format("delete review with ID %s", reviewId));
 
         reviewRepository.delete(review);
     }

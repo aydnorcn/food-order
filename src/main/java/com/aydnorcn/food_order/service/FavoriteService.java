@@ -37,7 +37,7 @@ public class FavoriteService {
     public PageResponseDto<Favorite> getUserFavoriteFoods(String userId, int pageNo, int pageSize) {
         User user = userService.getUserById(userId);
 
-        favoriteValidationService.validateAuthority(user);
+        favoriteValidationService.validateAuthority(user, String.format("view favorites of user with ID %s", userId));
 
         Page<Favorite> page = favoriteRepository.findAllByUser(user, PageRequest.of(pageNo, pageSize));
 
@@ -69,7 +69,7 @@ public class FavoriteService {
     public void removeUserFavorites(String userId) {
         User user = userService.getUserById(userId);
 
-        favoriteValidationService.validateAuthority(user);
+        favoriteValidationService.validateAuthority(user, String.format("remove favorites of user with ID %s", userId));
 
         favoriteRepository.deleteAllByUser(user);
     }

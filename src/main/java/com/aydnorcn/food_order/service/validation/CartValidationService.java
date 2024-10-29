@@ -12,12 +12,12 @@ public class CartValidationService {
 
     private final UserContextService userContextService;
 
-    public void validateAuthority(User user) {
+    public void validateAuthority(User user, String action) {
         User currentUser = userContextService.getCurrentAuthenticatedUser();
 
         if (!user.getId().equals(currentUser.getId()) &&
                 !userContextService.isCurrentAuthenticatedUserAdmin() && !userContextService.isCurrentAuthenticatedUserStaff()) {
-            throw new NoAuthorityException("You are not authorized to perform this action");
+            throw new NoAuthorityException("User with ID " + user.getId() + " is not authorized to " + action);
         }
     }
 }

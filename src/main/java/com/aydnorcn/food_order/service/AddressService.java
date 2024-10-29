@@ -7,8 +7,10 @@ import com.aydnorcn.food_order.exception.NoAuthorityException;
 import com.aydnorcn.food_order.exception.ResourceNotFoundException;
 import com.aydnorcn.food_order.repository.AddressRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AddressService {
@@ -28,7 +30,12 @@ public class AddressService {
         User user = userContextService.getCurrentAuthenticatedUser();
 
         Address address = new Address(dto, user);
-        return addressRepository.save(address);
+
+        Address savedAddress = addressRepository.save(address);
+
+        log.info("User {} created a new address with id {}", user.getId(), savedAddress.getId());
+
+        return savedAddress;
     }
 
     public Address updateAddress(Long addressId, CreateAddressRequestDto dto){
@@ -41,6 +48,9 @@ public class AddressService {
         address.setCity(dto.getCity());
         address.setPhone(dto.getPhone());
         address.setZipCode(dto.getZipCode());
+
+        log.info("User {} updated address with id {}", address.getUser().getId(), address.getId());
+
         return addressRepository.save(address);
     }
 
@@ -49,6 +59,8 @@ public class AddressService {
 
         validateAuthority(address);
 
+        log.info("User {} deleted address with id {}", address.getUser().getId(), address.getId());
+
         addressRepository.delete(address);
     }
 
@@ -56,6 +68,7 @@ public class AddressService {
         User user = userContextService.getCurrentAuthenticatedUser();
 
         if(!address.getUser().equals(user) && !userContextService.isCurrentAuthenticatedUserAdmin() && !userContextService.isCurrentAuthenticatedUserStaff()){
+            log.error("User {} is not authorized to perform this action", user.getId());
             throw new NoAuthorityException("You do not have authority to perform this operation!");
         }
     }

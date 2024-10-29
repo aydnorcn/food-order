@@ -28,7 +28,7 @@ public class RestaurantValidationService {
         }
     }
 
-    public void validateAuthority(Restaurant restaurant, User currentAuthenticatedUser) {
+    public void validateAuthority(Restaurant restaurant, User currentAuthenticatedUser, String action) {
         if(restaurant.getOwner().getId().equals(currentAuthenticatedUser.getId())){
             return;
         }
@@ -41,6 +41,6 @@ public class RestaurantValidationService {
             return;
         }
 
-        throw new NoAuthorityException("You are not authorized to perform this action!");
+        throw new NoAuthorityException("User with ID " + currentAuthenticatedUser.getId() + " is not authorized to " + action);
     }
 }

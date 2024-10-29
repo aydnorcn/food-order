@@ -8,6 +8,7 @@ import com.aydnorcn.food_order.exception.ResourceNotFoundException;
 import com.aydnorcn.food_order.repository.RoleRepository;
 import com.aydnorcn.food_order.service.validation.RoleValidationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -15,21 +16,23 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Locale;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RoleService {
 
     private final RoleRepository roleRepository;
     private final RoleValidationService roleValidationService;
+    private final UserContextService userContextService;
 
-    public Role getRoleById(Long id) {
-        roleValidationService.validateAuthority();
+    public Role getRoleById(Long roleId) {
+        roleValidationService.validateAuthority(String.format("view role with ID %s", roleId));
 
-        return roleRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Role not found!"));
+        return roleRepository.findById(roleId).orElseThrow(() -> new ResourceNotFoundException("Role not found!"));
     }
 
     public List<Role> getAllRoles() {
-        roleValidationService.validateAuthority();
+        roleValidationService.validateAuthority("view all roles");
         return roleRepository.findAll();
     }
 
@@ -40,27 +43,37 @@ public class RoleService {
 
     public Role createRole(CreateRoleRequestDto dto) {
         roleValidationService.validateRoleName(dto);
-        roleValidationService.validateAuthority();
+        roleValidationService.validateAuthority(String.format("create role with name %s", dto.getName()));
 
         Role role = new Role();
         String roleName = "ROLE_" + dto.getName().toUpperCase(Locale.ENGLISH);
         role.setName(roleName);
+
+        log.info("Role with name {} created by user with ID {}", dto.getName(), userContextService.getCurrentAuthenticatedUser().getId());
+
         return roleRepository.save(role);
     }
 
-    public Role updateRole(Long id, CreateRoleRequestDto dto) {
-        roleValidationService.validateAuthority();
+    public Role updateRole(Long roleId, CreateRoleRequestDto dto) {
+        roleValidationService.validateAuthority(String.format("update role with ID %s", roleId));
 
-        Role updateRole = roleRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Role not found!"));
+        Role updateRole = roleRepository.findById(roleId).orElseThrow(() -> new ResourceNotFoundException("Role not found!"));
         String roleName = "ROLE_" + dto.getName().toUpperCase(Locale.ENGLISH);
+
+        log.info("Role with ID {} updated from name {} to {} by user with ID {}", roleId, updateRole.getName(), dto.getName(), userContextService.getCurrentAuthenticatedUser().getId());
+
         updateRole.setName(roleName);
+
+
         return roleRepository.save(updateRole);
     }
 
-    public String deleteRole(Long id) {
-        roleValidationService.validateAuthority();
+    public void deleteRole(Long roleId) {
+        roleValidationService.validateAuthority(String.format("delete role with ID %s", roleId));
 
-        roleRepository.deleteById(id);
-        return "Role removed!";
+        Role role = getRoleById(roleId);
+        roleRepository.delete(role);
+
+        log.info("Role with ID {} and name {} deleted by user with ID {}", roleId, role.getName(), userContextService.getCurrentAuthenticatedUser().getId());
     }
 }

@@ -1,5 +1,6 @@
 package com.aydnorcn.food_order.service.validation;
 
+import com.aydnorcn.food_order.entity.User;
 import com.aydnorcn.food_order.exception.NoAuthorityException;
 import com.aydnorcn.food_order.repository.CategoryRepository;
 import com.aydnorcn.food_order.service.UserContextService;
@@ -19,9 +20,10 @@ public class CategoryValidationService {
         }
     }
 
-    public void validateAuthority() {
+    public void validateAuthority(String action) {
+        User currentUser = userContextService.getCurrentAuthenticatedUser();
         if (!userContextService.isCurrentAuthenticatedUserAdmin() && !userContextService.isCurrentAuthenticatedUserStaff()) {
-            throw new NoAuthorityException("You are not authorized to create a category!");
+            throw new NoAuthorityException("User with ID " + currentUser.getId() + " is not authorized to " + action);
         }
     }
 }

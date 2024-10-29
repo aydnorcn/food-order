@@ -11,7 +11,9 @@ import com.aydnorcn.food_order.exception.AlreadyExistsException;
 import com.aydnorcn.food_order.jwt.JwtTokenProvider;
 import com.aydnorcn.food_order.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -34,15 +37,23 @@ public class AuthService {
     private final RoleService roleService;
 
     public LoginResponse login(LoginRequest request) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        Authentication authentication;
+        try{
+            authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        } catch (BadCredentialsException e){
+            log.warn("Unsuccessful login attempt | Email: {}", request.getEmail());
+            throw new BadCredentialsException("Invalid email or password");
+        }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtTokenProvider.generateToken(authentication);
+        log.info("User successfully logged in | Email: {}", request.getEmail());
         return new LoginResponse(request.getEmail(), token);
     }
 
     public RegisterResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
+            log.error("Email already exists on database: {}", request.getEmail());
             throw new AlreadyExistsException("Email already exists on database!");
         }
 
@@ -61,6 +72,8 @@ public class AuthService {
         user.setLastName(request.getLastName());
 
         userRepository.save(user);
+
+        log.info("User successfully registered | First name: {}, Last name: {}, email: {}", user.getFirstName(), user.getLastName(), user.getEmail());
         return new RegisterResponse(request.getEmail(), request.getFirstName(), request.getLastName());
     }
 }

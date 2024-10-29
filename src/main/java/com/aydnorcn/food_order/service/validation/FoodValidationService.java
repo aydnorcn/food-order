@@ -1,6 +1,7 @@
 package com.aydnorcn.food_order.service.validation;
 
 import com.aydnorcn.food_order.entity.Restaurant;
+import com.aydnorcn.food_order.entity.User;
 import com.aydnorcn.food_order.exception.NoAuthorityException;
 import com.aydnorcn.food_order.service.UserContextService;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +13,9 @@ public class FoodValidationService {
 
     private final UserContextService userContextService;
 
-    public void validateAuthority(Restaurant restaurant) {
-        if (restaurant.getOwner().getId().equals(userContextService.getCurrentAuthenticatedUser().getId())) {
+    public void validateAuthority(Restaurant restaurant, String action) {
+        User currentUser = userContextService.getCurrentAuthenticatedUser();
+        if (restaurant.getOwner().getId().equals(currentUser.getId())) {
             return;
         }
 
@@ -25,6 +27,6 @@ public class FoodValidationService {
             return;
         }
 
-        throw new NoAuthorityException("You are not authorized to perform this action!");
+        throw new NoAuthorityException("User with ID " + currentUser.getId() + " is not authorized to " + action);
     }
 }
