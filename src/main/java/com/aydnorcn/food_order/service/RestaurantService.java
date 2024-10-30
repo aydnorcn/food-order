@@ -10,6 +10,10 @@ import com.aydnorcn.food_order.repository.RestaurantRepository;
 import com.aydnorcn.food_order.service.validation.RestaurantValidationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -27,14 +31,22 @@ public class RestaurantService {
     private final RestaurantValidationService restaurantValidationService;
     private final UserContextService userContextService;
 
+    @Cacheable(value = "restaurants", key = "#restaurantId")
     public Restaurant getRestaurantById(String restaurantId) {
         return restaurantRepository.findById(restaurantId).orElseThrow(() -> new ResourceNotFoundException("Restaurant not found!"));
     }
 
     public PageResponseDto<Restaurant> getRestaurants(int pageNo, int pageSize) {
-        return new PageResponseDto<>(restaurantRepository.findAll(PageRequest.of(pageNo, pageSize)));
+        return new PageResponseDto<>(getRestaurantPage(pageNo, pageSize));
     }
 
+
+    @Cacheable(value = "restaurantPages", key = "#pageNo + '-' + #pageSize")
+    public Page<Restaurant> getRestaurantPage(int pageNo, int pageSize) {
+        return restaurantRepository.findAll(PageRequest.of(pageNo, pageSize));
+    }
+
+    @CachePut(value = "restaurants", key = "#result.id")
     public Restaurant createRestaurant(CreateRestaurantRequestDto dto) {
         User currentAuthenticatedUser = userContextService.getCurrentAuthenticatedUser();
 
@@ -51,10 +63,11 @@ public class RestaurantService {
         return savedRestaurant;
     }
 
+    @CachePut(value = "restaurants", key = "#restaurantId")
     public Restaurant updateRestaurantById(String restaurantId, CreateRestaurantRequestDto dto) {
         Restaurant restaurant = getRestaurantById(restaurantId);
 
-        restaurantValidationService.validateAuthority(restaurant, userContextService.getCurrentAuthenticatedUser(), String.format("update restaurant with ID %s", restaurantId));
+        restaurantValidationService.validateAuthority(restaurant, String.format("update restaurant with ID %s", restaurantId));
 
         restaurant.setName(dto.getName());
         restaurant.setAddress(dto.getAddress());
@@ -73,10 +86,12 @@ public class RestaurantService {
         return savedRestaurant;
     }
 
+    @CachePut(value = "restaurants", key = "#restaurantId")
     public Restaurant patchRestaurant(String restaurantId, PatchRestaurantRequestDto dto) {
         Restaurant restaurant = getRestaurantById(restaurantId);
 
-        restaurantValidationService.validateAuthority(restaurant, userContextService.getCurrentAuthenticatedUser(), String.format("patch restaurant with ID %s", restaurantId));
+        restaurantValidationService.validateAuthority(restaurant, String.format("patch restaurant with ID %s", restaurantId));
+        restaurantValidationService.validatePatchRestaurantDetails(restaurant, dto);
 
         if (dto.getName() != null) restaurant.setName(dto.getName());
         if (dto.getAddress() != null) restaurant.setAddress(dto.getAddress());
@@ -87,7 +102,6 @@ public class RestaurantService {
         if (dto.getOpenDays() != null)
             restaurant.setOpenDays(dto.getOpenDays().stream().map(day -> DayOfWeek.valueOf(day.toUpperCase(Locale.ENGLISH))).collect(Collectors.toList()));
 
-        restaurantValidationService.validateRestaurantDetails(restaurant);
 
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
 
@@ -96,10 +110,11 @@ public class RestaurantService {
         return savedRestaurant;
     }
 
+    @CacheEvict(value = "restaurants", key = "#restaurantId")
     public void deleteRestaurantById(String restaurantId) {
         Restaurant restaurant = getRestaurantById(restaurantId);
 
-        restaurantValidationService.validateAuthority(restaurant, userContextService.getCurrentAuthenticatedUser(), String.format("delete restaurant with ID %s", restaurantId));
+        restaurantValidationService.validateAuthority(restaurant, String.format("delete restaurant with ID %s", restaurantId));
 
         restaurantRepository.delete(restaurant);
 

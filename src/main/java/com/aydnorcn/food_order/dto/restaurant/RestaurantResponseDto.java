@@ -16,7 +16,7 @@ public class RestaurantResponseDto {
     private String email;
     private String openTime;
     private String closeTime;
-    private List<DayOfWeek> openDays;
+    private List<String> openDays;
     private String ownerId;
 
     public RestaurantResponseDto(Restaurant restaurant) {
@@ -27,7 +27,7 @@ public class RestaurantResponseDto {
         this.email = restaurant.getEmail();
         this.openTime = restaurant.getOpenTime().toString();
         this.closeTime = restaurant.getCloseTime().toString();
-        this.openDays = restaurant.getOpenDays();
+        this.openDays = restaurant.getOpenDays().stream().map(DayOfWeek::toString).toList();
         this.ownerId = restaurant.getOwner().getId();
     }
 }

@@ -12,6 +12,9 @@ import com.aydnorcn.food_order.repository.FoodRepository;
 import com.aydnorcn.food_order.service.validation.FoodValidationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -29,6 +32,7 @@ public class FoodService {
     private final CategoryService categoryService;
     private final FoodValidationService foodValidationService;
 
+    @Cacheable(value = "foods", key = "#foodId")
     public Food getFoodById(Long foodId) {
         return foodRepository.findById(foodId).orElseThrow(() -> new ResourceNotFoundException("Food not found!"));
     }
@@ -40,11 +44,16 @@ public class FoodService {
         Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Specification<Food> specification = FoodFilter.filter(category, restaurant, minPrice, maxPrice);
-        Page<Food> foods = foodRepository.findAll(specification, PageRequest.of(pageNo, pageSize, sort));
 
-        return new PageResponseDto<>(foods);
+        return new PageResponseDto<>(getFoodPage(pageNo, pageSize, specification, sort));
     }
 
+    @Cacheable(value = "foodPages", key = "#pageNo + '-' + #pageSize")
+    public Page<Food> getFoodPage(int pageNo, int pageSize, Specification<Food> specification, Sort sort) {
+        return foodRepository.findAll(specification, PageRequest.of(pageNo, pageSize, sort));
+    }
+
+    @CachePut(value = "foods", key = "#result.id")
     public Food createFood(CreateFoodRequestDto dto) {
         Restaurant restaurant = restaurantService.getRestaurantById(dto.getRestaurantId());
 
@@ -62,6 +71,7 @@ public class FoodService {
         return savedFood;
     }
 
+    @CachePut(value = "foods", key = "#foodId")
     public Food updateFood(Long foodId, CreateFoodRequestDto dto) {
         Food food = getFoodById(foodId);
 
@@ -83,6 +93,7 @@ public class FoodService {
         return savedFood;
     }
 
+    @CachePut(value = "foods", key = "#foodId")
     public Food patchFood(Long foodId, PatchFoodRequestDto dto) {
         Food food = getFoodById(foodId);
 
@@ -101,6 +112,7 @@ public class FoodService {
         return savedFood;
     }
 
+    @CacheEvict(value = "foods", key = "#foodId")
     public void deleteFood(Long foodId) {
         Food food = getFoodById(foodId);
 
