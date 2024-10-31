@@ -49,9 +49,11 @@ public class RoleService {
         String roleName = "ROLE_" + dto.getName().toUpperCase(Locale.ENGLISH);
         role.setName(roleName);
 
-        log.info("Role with name {} created by user with ID {}", dto.getName(), userContextService.getCurrentAuthenticatedUser().getId());
+        Role savedRole = roleRepository.save(role);
 
-        return roleRepository.save(role);
+        log.info("Role created | User {} created role: {}", userContextService.getCurrentAuthenticatedUser().getId(), role);
+
+        return savedRole;
     }
 
     public Role updateRole(Long roleId, CreateRoleRequestDto dto) {
@@ -60,7 +62,7 @@ public class RoleService {
         Role updateRole = roleRepository.findById(roleId).orElseThrow(() -> new ResourceNotFoundException("Role not found!"));
         String roleName = "ROLE_" + dto.getName().toUpperCase(Locale.ENGLISH);
 
-        log.info("Role with ID {} updated from name {} to {} by user with ID {}", roleId, updateRole.getName(), dto.getName(), userContextService.getCurrentAuthenticatedUser().getId());
+        log.info("Role updated | User {} updated role name from {} to {}", userContextService.getCurrentAuthenticatedUser().getId(), updateRole.getName(), roleName);
 
         updateRole.setName(roleName);
 
@@ -74,6 +76,6 @@ public class RoleService {
         Role role = getRoleById(roleId);
         roleRepository.delete(role);
 
-        log.info("Role with ID {} and name {} deleted by user with ID {}", roleId, role.getName(), userContextService.getCurrentAuthenticatedUser().getId());
+        log.info("Role deleted | Role {} deleted by user with ID {}", role, userContextService.getCurrentAuthenticatedUser().getId());
     }
 }

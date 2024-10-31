@@ -66,7 +66,7 @@ public class FoodService {
 
         Food savedFood = foodRepository.save(food);
 
-        log.info("Food created | foodId: {}, restaurantId: {}", savedFood.getId(), restaurant.getId());
+        log.info("Food created | Food: {}", food);
 
         return savedFood;
     }
@@ -88,7 +88,7 @@ public class FoodService {
 
         Food savedFood = foodRepository.save(food);
 
-        log.info("Food updated | foodId: {}, restaurantId: {}", savedFood.getId(), savedFood.getRestaurant().getId());
+        log.info("Food updated | Food: {}", food);
 
         return savedFood;
     }
@@ -107,7 +107,7 @@ public class FoodService {
 
         Food savedFood = foodRepository.save(food);
 
-        log.info("Food patched | foodId: {}, restaurantId: {}", savedFood.getId(), savedFood.getRestaurant().getId());
+        log.info("Food patched | Food: {}", food);
 
         return savedFood;
     }
@@ -120,6 +120,6 @@ public class FoodService {
 
         foodRepository.deleteById(foodId);
 
-        log.info("Food deleted | foodId: {}, restaurantId: {}", foodId, food.getRestaurant().getId());
+        log.info("Food deleted | {}", food);
     }
 }

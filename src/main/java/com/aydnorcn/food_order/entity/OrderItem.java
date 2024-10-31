@@ -52,4 +52,20 @@ public class OrderItem {
         this.quantity = quantity;
         this.totalPrice = food.getPrice() * quantity;
     }
+
+    @Override
+    public String toString() {
+        return "OrderItem{" +
+                "id=" + id +
+                ", order=" + order.toString() +
+                ", restaurant=" + restaurant.toString() +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", price=" + price +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", category='" + category + '\'' +
+                ", quantity=" + quantity +
+                ", totalPrice=" + totalPrice +
+                '}';
+    }
 }

@@ -91,19 +91,18 @@ public class OrderService {
 
         Order savedOrder = orderRepository.save(order);
 
-        log.info("Order successfully created | User id: {}, Order ID: {}, Order Total Price: {}", user.getId(), savedOrder.getId(), savedOrder.getTotal());
+        log.info("Order successfully created | Order: {}", order);
 
         return savedOrder;
     }
 
     public Order updateOrderStatus(Long orderId, String status) {
-        log.info("Updating order status orderId: {}", orderId);
         Order order = getOrderById(orderId);
 
         orderValidationService.validateAuthority();
 
         order.setStatus(OrderStatus.fromString(status));
-        log.info("Order status successfully updated | orderId: {}, status: {}", order, status);
+        log.info("Order status updated | Order {}'s status updated to {}", order, status);
 
         return orderRepository.save(order);
     }
@@ -114,6 +113,6 @@ public class OrderService {
         orderValidationService.validateAuthority(order.getUser());
 
         orderRepository.delete(order);
-        log.info("Order successfully deleted: {}", order.getId());
+        log.info("Order deleted | Order successfully deleted: {}", order);
     }
 }

@@ -54,4 +54,23 @@ public class Order {
         this.phone = address.getPhone();
         this.zipCode = address.getZipCode();
     }
+
+    @Override
+    public String toString() {
+        return "Order(" +
+                "id=" + id +
+                ", itemsCount=" + items.size() +
+                ", user=" + user.getId() +
+                ", fullName='" + fullName + '\'' +
+                ", address='" + address + '\'' +
+                ", city='" + city + '\'' +
+                ", phone='" + phone + '\'' +
+                ", zipCode='" + zipCode + '\'' +
+                ", note='" + note + '\'' +
+                ", total=" + total +
+                ", discount=" + discount +
+                ", coupon=" + (coupon == null ? "null" : coupon.getId()) +
+                ", status=" + status.toString() +
+                ')';
+    }
 }

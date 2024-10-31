@@ -33,4 +33,17 @@ public class Address {
         this.zipCode = dto.getZipCode();
         this.user = user;
     }
+
+    @Override
+    public String toString() {
+        return "Address(" +
+                "id=" + id +
+                ", fullName='" + fullName + '\'' +
+                ", address='" + address + '\'' +
+                ", city='" + city + '\'' +
+                ", phone='" + phone + '\'' +
+                ", zipCode='" + zipCode + '\'' +
+                ", user=" + user.getId() +
+                ')';
+    }
 }

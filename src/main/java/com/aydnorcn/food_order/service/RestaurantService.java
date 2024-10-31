@@ -58,7 +58,7 @@ public class RestaurantService {
 
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
 
-        log.info("Restaurant created | restaurantId: {}, ownerId: {}", restaurant.getId(), currentAuthenticatedUser.getId());
+        log.info("Restaurant created | Restaurant: {}", restaurant);
 
         return savedRestaurant;
     }
@@ -81,7 +81,7 @@ public class RestaurantService {
 
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
 
-        log.info("Restaurant updated | restaurantId: {}, ownerId: {}", restaurant.getId(), userContextService.getCurrentAuthenticatedUser().getId());
+        log.info("Restaurant updated | Restaurant: {}", restaurant);
 
         return savedRestaurant;
     }
@@ -105,7 +105,7 @@ public class RestaurantService {
 
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
 
-        log.info("Restaurant patched | restaurantId: {}, ownerId: {}", restaurant.getId(), userContextService.getCurrentAuthenticatedUser().getId());
+        log.info("Restaurant patched | Restaurant: {}", restaurant);
 
         return savedRestaurant;
     }
@@ -118,6 +118,6 @@ public class RestaurantService {
 
         restaurantRepository.delete(restaurant);
 
-        log.info("Restaurant deleted | restaurantId: {}, ownerId: {}", restaurant.getId(), userContextService.getCurrentAuthenticatedUser().getId());
+        log.info("Restaurant deleted | Restaurant: {}", restaurant);
     }
 }

@@ -40,9 +40,11 @@ public class CategoryService {
         Category category = new Category();
         category.setName(dto.getName());
 
-        log.info("Category with name {} created by user with ID {}", dto.getName(), userContextService.getCurrentAuthenticatedUser().getId());
+        Category savedCategory = categoryRepository.save(category);
 
-        return categoryRepository.save(category);
+        log.info("Category created | User {} created category: {}", userContextService.getCurrentAuthenticatedUser().getId(), savedCategory);
+
+        return savedCategory;
     }
 
     public Category updateCategory(Long categoryId, CreateCategoryRequestDto dto) {
@@ -52,7 +54,7 @@ public class CategoryService {
 
         categoryValidationService.validateAuthority(String.format("update category with ID %s", categoryId));
 
-        log.info("Category with ID {} updated from name {} to {} by user with ID {}", categoryId, category.getName(), dto.getName(), userContextService.getCurrentAuthenticatedUser().getId());
+        log.info("Category updated | User {} updated category name from {} to {}", userContextService.getCurrentAuthenticatedUser().getId(), category.getName(), dto.getName());
 
         category.setName(dto.getName());
 
@@ -67,6 +69,6 @@ public class CategoryService {
 
         categoryRepository.delete(category);
 
-        log.info("Category with ID {} and name {} deleted by user with ID {}", categoryId, category.getName(), userContextService.getCurrentAuthenticatedUser().getId());
+        log.info("Category deleted | Category {} deleted by user with ID {}", category, userContextService.getCurrentAuthenticatedUser().getId());
     }
 }

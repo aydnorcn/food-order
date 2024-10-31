@@ -36,4 +36,17 @@ public class Food {
         this.restaurant = restaurant;
         this.category = category;
     }
+
+    @Override
+    public String toString() {
+        return "Food(" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", price=" + price +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", category=" + category.getId() +
+                ", restaurant=" + restaurant.getId() +
+                ')';
+    }
 }

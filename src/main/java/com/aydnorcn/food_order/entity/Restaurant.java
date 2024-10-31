@@ -45,4 +45,20 @@ public class Restaurant {
     @ElementCollection(targetClass = DayOfWeek.class)
     @CollectionTable(name = "restaurant_open_days", joinColumns = @JoinColumn(name = "restaurant_id"))
     private List<DayOfWeek> openDays;
+
+
+    @Override
+    public String toString() {
+        return "Restaurant(" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", address='" + address + '\'' +
+                ", phone='" + phone + '\'' +
+                ", email='" + email + '\'' +
+                ", owner=" + owner.getId() +
+                ", openTime=" + openTime +
+                ", closeTime=" + closeTime +
+                ", openDays=" + openDays +
+                ')';
+    }
 }

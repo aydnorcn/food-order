@@ -33,7 +33,7 @@ public class AddressService {
 
         Address savedAddress = addressRepository.save(address);
 
-        log.info("User {} created a new address with id {}", user.getId(), savedAddress.getId());
+        log.info("Address created | User {} created a new address with id {}", user.getId(), savedAddress.getId());
 
         return savedAddress;
     }
@@ -49,7 +49,7 @@ public class AddressService {
         address.setPhone(dto.getPhone());
         address.setZipCode(dto.getZipCode());
 
-        log.info("User {} updated address with id {}", address.getUser().getId(), address.getId());
+        log.info("Address updated | User {} updated address with id {}", address.getUser().getId(), address.getId());
 
         return addressRepository.save(address);
     }
@@ -59,7 +59,7 @@ public class AddressService {
 
         validateAuthority(address);
 
-        log.info("User {} deleted address with id {}", address.getUser().getId(), address.getId());
+        log.info("Address deleted | User {} deleted address:  {}", address.getUser().getId(), address);
 
         addressRepository.delete(address);
     }

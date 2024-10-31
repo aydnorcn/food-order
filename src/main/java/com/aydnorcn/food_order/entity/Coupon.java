@@ -20,4 +20,17 @@ public class Coupon {
     private LocalDate expireDate;
     private Integer remainingUsages;
     private Boolean active;
+
+    @Override
+    public String toString() {
+        return "Coupon(" +
+                "id=" + id +
+                ", code='" + code + '\'' +
+                ", discountPercentage=" + discountPercentage +
+                ", minimumAmount=" + minimumAmount +
+                ", expireDate=" + expireDate +
+                ", remainingUsages=" + remainingUsages +
+                ", active=" + active +
+                ')';
+    }
 }

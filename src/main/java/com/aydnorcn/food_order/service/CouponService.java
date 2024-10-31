@@ -53,7 +53,7 @@ public class CouponService {
 
         Coupon savedCoupon = couponRepository.save(newCoupon);
 
-        log.info("Coupon with code {} created by user with ID {}", savedCoupon.getCode(), userContextService.getCurrentAuthenticatedUser().getId());
+        log.info("Coupon created | Coupon {} created by user with ID {}", savedCoupon, userContextService.getCurrentAuthenticatedUser().getId());
 
         return savedCoupon;
     }
@@ -75,7 +75,7 @@ public class CouponService {
         if(dto.getExpireDate() != null) coupon.setExpireDate(dto.getExpireDate());
         if(dto.getRemainingUsages() != null) coupon.setRemainingUsages(dto.getRemainingUsages());
 
-        log.info("Coupon with code {} updated by user with ID {}", coupon.getCode(), userContextService.getCurrentAuthenticatedUser().getId());
+        log.info("Coupon patched | Coupon {} updated by user with ID {}", coupon, userContextService.getCurrentAuthenticatedUser().getId());
 
         return couponRepository.save(coupon);
     }
@@ -87,7 +87,7 @@ public class CouponService {
 
         couponRepository.delete(coupon);
 
-        log.info("Coupon with code {} deleted by user with ID {}", coupon.getCode(), userContextService.getCurrentAuthenticatedUser().getId());
+        log.info("Coupon deleted | Coupon {} deleted by user with ID {}", coupon, userContextService.getCurrentAuthenticatedUser().getId());
     }
 
     protected void useCoupon(Coupon coupon){
