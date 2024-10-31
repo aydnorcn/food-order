@@ -1,12 +1,17 @@
 package com.aydnorcn.food_order.controller;
 
 import com.aydnorcn.food_order.dto.PageResponseDto;
+import com.aydnorcn.food_order.dto.food.CreateFoodRequestDto;
 import com.aydnorcn.food_order.dto.food.FoodResponseDto;
+import com.aydnorcn.food_order.dto.menu.CreateMenuItemDto;
 import com.aydnorcn.food_order.entity.Food;
+import com.aydnorcn.food_order.service.FoodService;
 import com.aydnorcn.food_order.service.MenuService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -29,6 +34,13 @@ public class MenuController {
         PageResponseDto<Food> foods = menuService.getRestaurantMenu(restaurantId, categoryId, pageNo, pageSize, minPrice, maxPrice, sortBy, sortDirection);
         List<FoodResponseDto> foodResponses = foods.getContent().stream().map(FoodResponseDto::new).toList();
         return ResponseEntity.ok(new PageResponseDto<>(foodResponses, foods.getPageNo(), foods.getPageSize(), foods.getTotalElements(), foods.getTotalPages()));
+    }
+
+    @PostMapping("/{restaurantId}/menus")
+    public ResponseEntity<FoodResponseDto> addFoodToMenu(@PathVariable String restaurantId, @Valid @RequestPart("data") CreateMenuItemDto dto, @RequestPart MultipartFile image) {
+        dto.setImage(image);
+        Food savedFood = menuService.addFoodToMenu(restaurantId, dto);
+        return ResponseEntity.ok(new FoodResponseDto(savedFood));
     }
 
     @DeleteMapping("/{restaurantId}/menus")
