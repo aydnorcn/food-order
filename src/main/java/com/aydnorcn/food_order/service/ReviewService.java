@@ -6,10 +6,13 @@ import com.aydnorcn.food_order.entity.Order;
 import com.aydnorcn.food_order.entity.Review;
 import com.aydnorcn.food_order.entity.User;
 import com.aydnorcn.food_order.exception.ResourceNotFoundException;
+import com.aydnorcn.food_order.filter.ReviewFilter;
 import com.aydnorcn.food_order.repository.ReviewRepository;
 import com.aydnorcn.food_order.service.validation.ReviewValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,17 +33,28 @@ public class ReviewService {
         return review;
     }
 
-    public PageResponseDto<Review> getReviews(int pageNo, int pageSize) {
+    public PageResponseDto<Review> getReviews(Long orderId, int minRating, int maxRating, int pageNo, int pageSize, String sortBy, String sortDirection) {
         User user = userContextService.getCurrentAuthenticatedUser();
-        return new PageResponseDto<>(reviewRepository.findAllByUser(user, PageRequest.of(pageNo, pageSize)));
+
+        Order order = (orderId != null) ? orderService.getOrderById(orderId) : null;
+
+        Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Specification<Review> specification = ReviewFilter.filter(order, minRating, maxRating);
+
+        return new PageResponseDto<>(reviewRepository.findAllByUser(user, specification,PageRequest.of(pageNo, pageSize, sort)));
     }
 
-    public PageResponseDto<Review> getUserReviews(String userId, int pageNo, int pageSize) {
+    public PageResponseDto<Review> getUserReviews(String userId, Long orderId, int minRating, int maxRating, int pageNo, int pageSize, String sortBy, String sortDirection) {
         User user = userService.getUserById(userId);
 
         reviewValidationService.validateAuthority(user, String.format("view reviews of user with ID %s", userId));
 
-        return new PageResponseDto<>(reviewRepository.findAllByUser(user, PageRequest.of(pageNo, pageSize)));
+        Order order = (orderId != null) ? orderService.getOrderById(orderId) : null;
+
+        Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Specification<Review> specification = ReviewFilter.filter(order, minRating, maxRating);
+
+        return new PageResponseDto<>(reviewRepository.findAllByUser(user, specification, PageRequest.of(pageNo, pageSize, sort)));
     }
 
     public Review createReview(Long orderId, CreateReviewRequestDto dto) {

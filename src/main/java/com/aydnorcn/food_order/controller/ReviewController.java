@@ -26,18 +26,28 @@ public class ReviewController {
     }
 
     @GetMapping("/reviews")
-    public ResponseEntity<PageResponseDto<ReviewResponseDto>> getReviews(@RequestParam(name = "page-no", defaultValue = "0") int pageNo,
-                                                                         @RequestParam(name = "page-size", defaultValue = "10") int pageSize) {
-        PageResponseDto<Review> reviews = reviewService.getReviews(pageNo, pageSize);
+    public ResponseEntity<PageResponseDto<ReviewResponseDto>> getReviews(@RequestParam(name = "order-id", required = false) Long orderId,
+                                                                         @RequestParam(name = "min-rating", defaultValue = "0") int minRating,
+                                                                         @RequestParam(name = "max-rating", defaultValue = "5") int maxRating,
+                                                                         @RequestParam(name = "page-no", defaultValue = "0") int pageNo,
+                                                                         @RequestParam(name = "page-size", defaultValue = "10") int pageSize,
+                                                                         @RequestParam(name = "sort-by", defaultValue = "id", required = false) String sortBy,
+                                                                         @RequestParam(name = "sort-dir", defaultValue = "asc", required = false) String sortDirection) {
+        PageResponseDto<Review> reviews = reviewService.getReviews(orderId, minRating, maxRating, pageNo, pageSize, sortBy, sortDirection);
         List<ReviewResponseDto> reviewResponses = reviews.getContent().stream().map(ReviewResponseDto::new).toList();
         return ResponseEntity.ok(new PageResponseDto<>(reviewResponses, reviews.getPageNo(), reviews.getPageSize(), reviews.getTotalElements(), reviews.getTotalPages()));
     }
 
     @GetMapping("/users/{userId}/reviews")
     public ResponseEntity<PageResponseDto<ReviewResponseDto>> getUserReviews(@PathVariable String userId,
+                                                                             @RequestParam(name = "order-id", required = false) Long orderId,
+                                                                             @RequestParam(name = "min-rating", defaultValue = "0") int minRating,
+                                                                             @RequestParam(name = "max-rating", defaultValue = "5") int maxRating,
                                                                              @RequestParam(name = "page-no", defaultValue = "0") int pageNo,
-                                                                             @RequestParam(name = "page-size", defaultValue = "10") int pageSize) {
-        PageResponseDto<Review> reviews = reviewService.getUserReviews(userId, pageNo, pageSize);
+                                                                             @RequestParam(name = "page-size", defaultValue = "10") int pageSize,
+                                                                             @RequestParam(name = "sort-by", defaultValue = "id", required = false) String sortBy,
+                                                                             @RequestParam(name = "sort-dir", defaultValue = "asc", required = false) String sortDirection) {
+        PageResponseDto<Review> reviews = reviewService.getUserReviews(userId, orderId, minRating, maxRating, pageNo, pageSize, sortBy, sortDirection);
         List<ReviewResponseDto> reviewResponses = reviews.getContent().stream().map(ReviewResponseDto::new).toList();
         return ResponseEntity.ok(new PageResponseDto<>(reviewResponses, reviews.getPageNo(), reviews.getPageSize(), reviews.getTotalElements(), reviews.getTotalPages()));
     }
